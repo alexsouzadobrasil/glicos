@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
+
+<head>
+    <meta charset="utf-8">
+    <title>Glicos</title>
+    <meta name="description" content="mobile OutLay, app, web app, responsive, admin dashboard, flat, flat ui">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/plugin.css">
+    <link rel="stylesheet" href="css/font.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/angular.css">
+    <!--[if lt IE 9]>
+    <script src="js/ie/respond.min.js"></script>
+    <script src="js/ie/html5.js"></script>
+  <![endif]-->
+    <!-- <script src="cordova.js"></script> <script src="xdk/init-dev.js"></script>
+   phantom library, needed for Cordova api calls, added during build -->
+    <!-- recommended location of your JavaScript code relative to other JS files -->
+    <!-- normalizes device and document ready events, see README for details bg-white-->
+</head>
+
+<body ng-controller="foodController">
+    <!-- header -->
+    <header ng-show="searchFood.length < 3" id="header" class="navbar bg-white navbar-fixed-bottom">
+        <ul class="bigIco breadcrumb text-center">
+            <li ng-click="step='configuração'">
+                <a href class="btn btn-white " ng-class="{active: step == 'configuração'}"><i class="fa fa-tint"></i></a>
+            </li>
+            <li ng-click="step='refeição'">
+                <a href class="btn btn-white " ng-class="{active: step == 'refeição'}"><i class="fa fa-coffee"></i></a>
+            </li>
+            <li ng-click="step='resultado'; tools.calc();">
+                <a href class="btn btn-white " ng-class="{active: step == 'resultado'}"><i class="fa fa-check"></i></a>
+            </li>
+        </ul>
+    </header>
+    <section id="content" class="content-sidebar">
+        <!--     <img src="img/300x300.png" alt=""> -->
+        <div class="step-content">
+            <div class="step-pane" ng-class="{active: step == 'configuração'}" id="configuração">
+                <div class="m-b n-xmini scroll-y scrollbar">
+                    <div class="form-group" ng-class="{'warning': task.status == 'Hold' , 'success': task.status == 'Completed','active': task.status == 'Started', 'danger': task.status == 'Pending' } ">
+                        <div class="padder ">
+                            <label class="col-lg-3 control-label">Meça sua glicemia atual</label>
+                            <div class="input-group">
+                                <span class="input-group-btn"> <i class="fa fa-tint"></i>
+                             </span>
+                                <input ng-model="glicemia" type="number" min="30" max="600" autofocus data-required="true" placeholder="Digite sua glicemia atual" class="input-sm form-control">
+                            </div>
+                            <label class="col-lg-3 control-label">Meta Glicemica</label>
+                            <div class="input-group">
+                                <span class="input-group-btn"> <i class="fa fa-edit"></i>
+                             </span>
+                                <input ng-model="metaGlicemica" type="number" step="10" min="90" max="120" placeholder="Digite sua Meta Glicemica:" class="input-sm form-control">
+                            </div>
+                            <label class="col-lg-3 control-label">Fator Correção</label>
+                            <div class="input-group">
+                                <span class="input-group-btn"> <i class="fa fa-edit"></i>
+                             </span>
+                                <input ng-model="fatorCorrecao" type="number" min="30" max="100" data-required="true" placeholder="Digite sua glicemia:" class="input-sm form-control">
+                            </div>
+                            <label class="col-lg-3 control-label">Razao Insulina</label>
+                            <div class="input-group">
+                                <span class="input-group-btn"> <i class="fa fa-edit"></i>
+                             </span>
+                                <input ng-model="razaoInsulina" type="number" min="5" max="15" data-required="true" placeholder="Digite sua glicemia:" class="input-sm form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="step-pane" ng-class="{active: step == 'refeição'}" id="refeição">
+                <div class="m-b">
+                    <div class="form-group">
+                        <div class="padder padder-v ">
+                            <div class="input-group">
+                                <span class="input-group-btn"> <i class="fa fa-search"></i>
+                             </span>
+                                <input type="text" ng-model="searchFood" placeholder="Nome do alimento" autofocus class="input-sm form-control search-food">
+                            </div>
+                        </div>
+                        <div class="list-group list-normal m-t-n-xmini scroll-y scrollbar">
+                            <!--         {{translate(food.t)}} -->
+                            <li ng-repeat="food in foods | foodfilter:searchFood" class="list-group-item slide-animation"  ng-swipe-left="tools.decrease(food)" ng-swipe-right="tools.increase(food)">
+                                <small class="pull-right text-muted"></small>
+                                <strong>{{food.n | uppercase}}</strong>
+                                <br>
+                                <small>
+                                 <span  ng-click="tools.dica('Arraste com o dedo para Direita ou Esqueda para aumentar ou diminuir a quantidade do alimento.')" class="badge pull-right ng-binding" ng-if="food.amount">{{food.amount}}</span>{{food.m}} de {{food.w}}g/ml - {{food.c}} cho -  {{food.k}} kcal</small>
+                            </li>
+                        </div>
+                        <!-- / scrollable inbox widget-->
+                    </div>
+                </div>
+            </div>
+            <div class="step-pane" ng-class="{active: step == 'resultado'}" id="resultado">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <section class="panel text-center">
+                            <div class="panel-body" ng-controller="salve">
+                                <a class="btn btn-circle btn-white btn-lg" ng-click="addNew()"><i class="fa fa-save"></i></a>
+                                <div class="line m-l m-r"></div>
+                                <div ng-show="insulina" class="col-xs-12 bg-white">
+                                    <div class="h2 insulina">{{insulina}} </div>
+                                    unidades de Insulina
+                                </div>
+                            </div>
+                            <div class="padder">
+                                <div class="row">
+                                    <div class="col-xs-4 bg-white">
+                                        <div class="h2 glicemia">{{glicemia || "n/a"}}</div>
+                                        Glicemia
+                                    </div>
+                                    <div class="col-xs-4 bg-white">
+                                        <div class="h2 carboidratos">{{cho}}</div>
+                                        Carboidratos
+                                    </div>
+                                    <div class="col-xs-4 bg-white">
+                                        <div class="h2 kcal">{{kcal }}</div>
+                                        Calorias
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                  
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- / footer -->
+    <!-- app -->
+</body>
+<script src="angular/angular.min.js"></script>
+<script src="angular/angular-touch.min.js"></script>
+<script src="angular/angular-animate.js"></script>
+<script src="angular/app.js"></script>
+<script src="angular/controller/food.js"></script>
+<script src="angular/controller/salve.js"></script>
+<script src="angular/animation/slide-animation.js"></script>
+
+<script src="angular/filter/filter-food.js"></script>
+<script src="js/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="js/bootstrap.js"></script>
+
+</html>
